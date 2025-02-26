@@ -81,7 +81,7 @@ const VehicleTable: React.FC<VehicleTableProps> = ({ vehicles }) => {
               </TableCell>
               <TableCell>
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeBadgeStyle(
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getTypeBadgeStyle(
                     vehicle.vehicle_type_id
                   )}`}
                 >
