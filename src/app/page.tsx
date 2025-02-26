@@ -1,7 +1,6 @@
-// src/app/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { fetchVehicles } from "@/services/api";
 import {
   PaginatedResponse,
@@ -26,8 +25,9 @@ export default function Home() {
     sort_by: "created_at",
     sort_direction: "desc",
   });
-
-  const loadVehicles = async () => {
+  
+  // Use loadVehicles as a memoized callback to prevent unnecessary rerenders
+  const loadVehicles = useCallback(async () => {
     setLoading(true);
     try {
       const response: PaginatedResponse<Vehicle> = await fetchVehicles({
@@ -36,51 +36,53 @@ export default function Home() {
         per_page: pagination.perPage,
       });
       setVehicles(response.data);
-      setPagination({
+      setPagination(prev => ({
+        ...prev,
         currentPage: response.current_page,
-        perPage: response.per_page,
         totalPages: response.last_page,
         total: response.total,
-      });
+      }));
     } catch (error) {
       console.error("Failed to fetch vehicles:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, pagination.currentPage, pagination.perPage]);
 
+  // Effect for loading vehicles
   useEffect(() => {
     loadVehicles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.currentPage, pagination.perPage, filters]);
+  }, [loadVehicles]);
 
-  // In your Home component (src/app/page.tsx)
-  const handleFilterChange = (newFilters: Partial<VehicleFilterParams>) => {
-    // Use a functional update to prevent unnecessary re-renders
-    setFilters((prevFilters) => {
-      // Compare stringified objects to check if there's an actual change
+  // Memoized filter change handler
+  const handleFilterChange = useCallback((newFilters: Partial<VehicleFilterParams>) => {
+    setFilters(prevFilters => {
       const updatedFilters = { ...prevFilters, ...newFilters };
+      
+      // Only update if there are actual changes
       if (JSON.stringify(prevFilters) === JSON.stringify(updatedFilters)) {
-        return prevFilters; // Return the same object if nothing changed
+        return prevFilters;
       }
-      console.log("Filters changed:", updatedFilters);
+      
+      // Reset to page 1 when filters change
+      setPagination(prev => ({ ...prev, currentPage: 1 }));
       return updatedFilters;
     });
+  }, []);
 
-    // Only reset page if we're not on page 1
-    setPagination((prev) => {
-      if (prev.currentPage === 1) return prev;
-      return { ...prev, currentPage: 1 };
-    });
-  };
+  // Page change handler
+  const handlePageChange = useCallback((page: number) => {
+    if (page !== pagination.currentPage) {
+      setPagination(prev => ({ ...prev, currentPage: page }));
+    }
+  }, [pagination.currentPage]);
 
-  const handlePageChange = (page: number) => {
-    setPagination({ ...pagination, currentPage: page });
-  };
-
-  const handlePerPageChange = (perPage: number) => {
-    setPagination({ ...pagination, perPage, currentPage: 1 });
-  };
+  // Per page change handler
+  const handlePerPageChange = useCallback((perPage: number) => {
+    if (perPage !== pagination.perPage) {
+      setPagination(prev => ({ ...prev, perPage, currentPage: 1 }));
+    }
+  }, [pagination.perPage]);
 
   return (
     <main className="container mx-auto pb-8 px-4">
@@ -113,7 +115,7 @@ export default function Home() {
                 of {pagination.total} vehicles
               </div>
 
-              <Pagination
+              <Pagination 
                 currentPage={pagination.currentPage}
                 totalPages={pagination.totalPages}
                 onPageChange={handlePageChange}

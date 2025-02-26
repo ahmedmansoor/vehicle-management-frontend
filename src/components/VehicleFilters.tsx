@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchVehicleTypes } from "@/services/api";
-import { VehicleType } from "@/types/Vehicle";
+import { VehicleType, VehicleFilterParams } from "@/types/Vehicle";
 import { Button } from "./ui/button";
 import { SearchIcon, SlidersHorizontal } from "lucide-react";
 import { Input } from "./ui/input";
@@ -35,6 +35,13 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
   
   // Use a ref to track if this is the first render
   const isInitialMount = useRef(true);
+  // Track previous filter values to avoid unnecessary updates
+  const previousFilters = useRef<VehicleFilterParams>({
+    vehicle_type_id: undefined,
+    search: undefined,
+    sort_by: "created_at",
+    sort_direction: "desc"
+  });
 
   // Load vehicle types on mount
   useEffect(() => {
@@ -58,18 +65,36 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
       return;
     }
     
-    // Apply filters
-    const filters = {
+    // Construct current filters object
+    const currentFilters = {
       vehicle_type_id: selectedType && selectedType !== "all" 
         ? parseInt(selectedType) 
         : undefined,
-      search: search.trim() || undefined, // Ensure we're only passing non-empty search terms
+      search: search.trim() || undefined,
       sort_by: sortBy,
       sort_direction: sortDirection,
     };
     
-    console.log("Applying filters:", filters);
-    onFilterChange(filters);
+    // Check if filters have actually changed
+    const hasChanged = 
+      previousFilters.current.vehicle_type_id !== currentFilters.vehicle_type_id ||
+      previousFilters.current.search !== currentFilters.search ||
+      previousFilters.current.sort_by !== currentFilters.sort_by ||
+      previousFilters.current.sort_direction !== currentFilters.sort_direction;
+    
+    // Only apply filters if they've changed
+    if (hasChanged) {
+      console.log("Filters changed, applying:", currentFilters);
+      onFilterChange(currentFilters);
+      
+      // Update previous filters (with explicit typing)
+      previousFilters.current = {
+        vehicle_type_id: currentFilters.vehicle_type_id,
+        search: currentFilters.search,
+        sort_by: currentFilters.sort_by,
+        sort_direction: currentFilters.sort_direction
+      };
+    }
   }, [selectedType, search, sortBy, sortDirection, onFilterChange]);
 
   const handleReset = () => {
@@ -82,6 +107,32 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
+
+  // Debounce search to reduce filter updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isInitialMount.current && search !== previousFilters.current.search) {
+        const currentFilters = {
+          vehicle_type_id: selectedType && selectedType !== "all" 
+            ? parseInt(selectedType) 
+            : undefined,
+          search: search.trim() || undefined,
+          sort_by: sortBy,
+          sort_direction: sortDirection,
+        };
+        
+        onFilterChange(currentFilters);
+        previousFilters.current = {
+          vehicle_type_id: currentFilters.vehicle_type_id,
+          search: currentFilters.search,
+          sort_by: currentFilters.sort_by,
+          sort_direction: currentFilters.sort_direction
+        };
+      }
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [search, selectedType, sortBy, sortDirection, onFilterChange]);
 
   return (
     <div className="mb-6">
