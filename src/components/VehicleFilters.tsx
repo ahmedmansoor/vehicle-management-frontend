@@ -2,8 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { fetchVehicleTypes } from "@/services/api";
 import { VehicleType } from "@/types/Vehicle";
 import { Button } from "./ui/button";
-import { SearchIcon, FilterIcon, FilterX } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { SearchIcon, SlidersHorizontal } from "lucide-react";
 import { Input } from "./ui/input";
 import {
   Select,
@@ -12,6 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface VehicleFiltersProps {
   onFilterChange: (filters: {
@@ -28,7 +32,6 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
   const [search, setSearch] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   
   // Use a ref to track if this is the first render
   const isInitialMount = useRef(true);
@@ -81,29 +84,18 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
   };
 
   return (
-    <Card className="mb-6 shadow-none">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-6">
-        <CardTitle className="text-md font-semibold">Vehicles</CardTitle>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="md:hidden hover:text-gray-900 hover:bg-gray-100"
-          onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-        >
-          {isFilterExpanded ? (
-            <FilterX className="h-4 w-4 mr-1" />
-          ) : (
-            <FilterIcon className="h-4 w-4 mr-1" />
-          )}
-        </Button>
-      </CardHeader>
-      <CardContent className="px-6 pb-6">
+    <div className="mb-6">
+      <div className="flex flex-row items-center justify-between pb-2 pt-6">
+        <h2 className="text-md font-semibold">Vehicles</h2>
+      </div>
+
+      <div className="flex gap-2 items-center">
         {/* Search - Always visible */}
-        <div className="mb-5">
+        <div className="flex-1">
           <div className="relative">
             <Input
               type="text"
-              placeholder="Search by registration number..."
+              placeholder="Search..."
               value={search}
               onChange={handleSearchChange}
               className="pl-10 text-sm"
@@ -114,90 +106,93 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
           </div>
         </div>
 
-        {/* Filters - Expandable on mobile */}
-        <div
-          className={`${
-            isFilterExpanded ? "block" : "hidden"
-          } md:block space-y-5`}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-                Vehicle Type
-              </label>
-              <Select
-                value={selectedType}
-                onValueChange={setSelectedType}
-              >
-                <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
-                  <SelectValue placeholder="All Types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {vehicleTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.id.toString()}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-                Sort By
-              </label>
-              <Select
-                value={sortBy}
-                onValueChange={setSortBy}
-              >
-                <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
-                  <SelectValue placeholder="Select sort field" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="created_at">Date Added</SelectItem>
-                  <SelectItem value="manufacturer">Manufacturer</SelectItem>
-                  <SelectItem value="model">Model</SelectItem>
-                  <SelectItem value="registration_number">
-                    Registration Number
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-                Sort Direction
-              </label>
-              <Select
-                value={sortDirection}
-                onValueChange={(value) => 
-                  setSortDirection(value as "asc" | "desc")
-                }
-              >
-                <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
-                  <SelectValue placeholder="Select direction" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="asc">Ascending</SelectItem>
-                  <SelectItem value="desc">Descending</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-2">
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors dark:text-white dark:hover:bg-neutral-950"
-            >
-              Reset Filters
+        {/* Filters Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <SlidersHorizontal className="h-4 w-4" />
             </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[280px] p-4">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                  Vehicle Type
+                </label>
+                <Select
+                  value={selectedType}
+                  onValueChange={setSelectedType}
+                >
+                  <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    {vehicleTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id.toString()}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                  Sort By
+                </label>
+                <Select
+                  value={sortBy}
+                  onValueChange={setSortBy}
+                >
+                  <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
+                    <SelectValue placeholder="Select sort field" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="created_at">Date Added</SelectItem>
+                    <SelectItem value="manufacturer">Manufacturer</SelectItem>
+                    <SelectItem value="model">Model</SelectItem>
+                    <SelectItem value="registration_number">
+                      Registration Number
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                  Sort Direction
+                </label>
+                <Select
+                  value={sortDirection}
+                  onValueChange={(value) => 
+                    setSortDirection(value as "asc" | "desc")
+                  }
+                >
+                  <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
+                    <SelectValue placeholder="Select direction" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asc">Ascending</SelectItem>
+                    <SelectItem value="desc">Descending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button
+                  variant="outline"
+                  onClick={handleReset}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors dark:text-white dark:hover:bg-neutral-950"
+                >
+                  Reset Filters
+                </Button>
+              </div>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
 };
 
