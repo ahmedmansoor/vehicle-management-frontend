@@ -55,14 +55,42 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const fetchVehicles = async (
-  params: VehicleFilterParams = {}
-): Promise<PaginatedResponse<Vehicle>> => {
-  const response = await api.get("/vehicles", { params });
+export const fetchVehicles = async (params: VehicleFilterParams = {}): Promise<PaginatedResponse<Vehicle>> => {
+  console.log('Fetching vehicles with params:', params); // Check what's being sent
+  
+  const response = await api.get('/vehicles', { 
+    params: {
+      // Make sure search parameter aligns with what your backend expects
+      search: params.search,
+      vehicle_type_id: params.vehicle_type_id,
+      sort_by: params.sort_by,
+      sort_direction: params.sort_direction,
+      page: params.page || 1,
+      per_page: params.per_page || 10
+    } 
+  });
+  
   return response.data;
 };
 
 export const fetchVehicleTypes = async () => {
   const response = await api.get("/vehicle-types");
-  return response.data;
+
+  // Handle different response formats by checking the structure
+  if (Array.isArray(response.data)) {
+    return response.data;
+  } else if (response.data && Array.isArray(response.data.data)) {
+    return response.data.data;
+  } else if (response.data && typeof response.data === "object") {
+    // If we got an object with vehicle types under some property
+    // Try common patterns like "vehicleTypes", "types", etc.
+    const possibleArrays = Object.values(response.data).filter(Array.isArray);
+    if (possibleArrays.length > 0) {
+      return possibleArrays[0];
+    }
+  }
+
+  // If we can't find an array in the response, return empty array
+  console.error("Unexpected vehicle types response format:", response.data);
+  return [];
 };

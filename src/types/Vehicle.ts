@@ -7,7 +7,7 @@ export interface BaseVehicle {
   engine_capacity: number;
   seats: number;
   vehicle_type_id: number;
-  vehicle_type: VehicleType;
+  vehicle_type?: VehicleType; // Make optional since it might not be included in all responses
   created_at: string;
   updated_at: string;
   is_approved: boolean;
@@ -16,21 +16,34 @@ export interface BaseVehicle {
 
 export interface Motorcycle extends BaseVehicle {
   seat_height: number;
+  cargo_capacity: null;
+  tonnage: null;
 }
 
 export interface Car extends BaseVehicle {
+  seat_height: null;
   cargo_capacity: number;
+  tonnage: null;
 }
 
 export interface PickupTruck extends BaseVehicle {
+  seat_height: null;
+  cargo_capacity: null;
   tonnage: number;
 }
 
-export type Vehicle = Motorcycle | Car | PickupTruck;
+// For responses that might have unknown type or missing specific fields
+export interface GenericVehicle extends BaseVehicle {
+  seat_height: number | null;
+  cargo_capacity: number | null;
+  tonnage: number | null;
+}
+
+export type Vehicle = Motorcycle | Car | PickupTruck | GenericVehicle;
 
 export interface VehicleType {
   id: number;
-  name: string; // "Motorcycle", "Car", "Pickup Truck"
+  name: string;
   created_at: string;
   updated_at: string;
 }
