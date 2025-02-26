@@ -97,7 +97,7 @@ export default function Home() {
         </>
       ) : (
         <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500 text-xl">No vehicles found matching your criteria</p>
+          <p className="text-gray-500 text-sm dark:text-white">No vehicles found matching your criteria</p>
         </div>
       )}
     </main>

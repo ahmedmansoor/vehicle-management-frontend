@@ -108,7 +108,7 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
                 value={selectedType}
                 onValueChange={(value) => setSelectedType(value)}
               >
-                <SelectTrigger className="w-full bg-gray-50">
+                <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -128,7 +128,7 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
                 value={sortBy}
                 onValueChange={(value) => setSortBy(value)}
               >
-                <SelectTrigger className="w-full bg-gray-50">
+                <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
                   <SelectValue placeholder="Select sort field" />
                 </SelectTrigger>
                 <SelectContent>
@@ -146,7 +146,7 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
                 value={sortDirection}
                 onValueChange={(value) => setSortDirection(value as 'asc' | 'desc')}
               >
-                <SelectTrigger className="w-full bg-gray-50">
+                <SelectTrigger className="w-full bg-gray-50 dark:bg-neutral-950 dark:text-white">
                   <SelectValue placeholder="Select direction" />
                 </SelectTrigger>
                 <SelectContent>
@@ -161,7 +161,7 @@ const VehicleFilters: React.FC<VehicleFiltersProps> = ({ onFilterChange }) => {
             <Button
               variant="outline"
               onClick={handleReset}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors dark:text-white dark:hover:bg-neutral-950"
             >
               Reset
             </Button>
