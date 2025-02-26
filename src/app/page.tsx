@@ -64,7 +64,7 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto py-8 px-4">
+    <main className="container mx-auto pb-8 px-4">
       <h1 className="text-3xl font-bold mb-6">Vehicle Inventory</h1>
       
       <VehicleFilters onFilterChange={handleFilterChange} />

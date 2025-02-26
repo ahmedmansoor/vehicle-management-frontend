@@ -36,8 +36,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
         >
           <div className="relative flex min-h-screen flex-col">
             <header className="sticky top-0 z-40 w-full border-b bg-background">
