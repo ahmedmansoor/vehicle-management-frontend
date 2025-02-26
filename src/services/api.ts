@@ -55,21 +55,22 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const fetchVehicles = async (params: VehicleFilterParams = {}): Promise<PaginatedResponse<Vehicle>> => {
-  console.log('Fetching vehicles with params:', params); // Check what's being sent
-  
-  const response = await api.get('/vehicles', { 
+export const fetchVehicles = async (
+  params: VehicleFilterParams = {}
+): Promise<PaginatedResponse<Vehicle>> => {
+  console.log("Fetching vehicles with params:", params); // Check what's being sent
+
+  const response = await api.get("/vehicles", {
     params: {
-      // Make sure search parameter aligns with what your backend expects
       search: params.search,
       vehicle_type_id: params.vehicle_type_id,
       sort_by: params.sort_by,
       sort_direction: params.sort_direction,
       page: params.page || 1,
-      per_page: params.per_page || 10
-    } 
+      per_page: params.per_page || 10,
+    },
   });
-  
+
   return response.data;
 };
 

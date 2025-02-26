@@ -87,8 +87,8 @@ export default function Home() {
   return (
     <main className="container mx-auto pb-8 px-4">
       <h1 className="text-3xl font-bold mb-4">Vehicle Inventory</h1>
-      <p className="text-gray-500 text-sm mb-3">
-        Search and filter vehicles to find the perfect match for your needs.
+      <p className="text-gray-500 text-sm mb-6">
+        Search and filter vehicles from our inventory.
       </p>
 
       <VehicleFilters onFilterChange={handleFilterChange} />

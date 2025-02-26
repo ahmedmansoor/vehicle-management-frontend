@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CheckCircle, XCircle } from "lucide-react";
 
 interface VehicleTableProps {
   vehicles: Vehicle[];
@@ -56,6 +57,25 @@ const VehicleTable: React.FC<VehicleTableProps> = ({ vehicles }) => {
     return "-";
   };
 
+  // Render approval status with icon and tooltip
+  const renderApprovalStatus = (isApproved: boolean) => {
+    return isApproved ? (
+      <div className="flex items-center">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+          <CheckCircle className="h-3.5 w-3.5" />
+          Approved
+        </span>
+      </div>
+    ) : (
+      <div className="flex items-center">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-neutral/10 text-neutral">
+          <XCircle className="h-3.5 w-3.5" />
+          Pending
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -67,6 +87,7 @@ const VehicleTable: React.FC<VehicleTableProps> = ({ vehicles }) => {
             <TableHead>Engine</TableHead>
             <TableHead>Seats</TableHead>
             <TableHead>Specific Info</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Added On</TableHead>
           </TableRow>
         </TableHeader>
@@ -91,6 +112,7 @@ const VehicleTable: React.FC<VehicleTableProps> = ({ vehicles }) => {
               <TableCell>{vehicle.engine_capacity}cc</TableCell>
               <TableCell>{vehicle.seats}</TableCell>
               <TableCell>{getVehicleSpecificInfo(vehicle)}</TableCell>
+              <TableCell>{renderApprovalStatus(vehicle.is_approved)}</TableCell>
               <TableCell>
                 {new Date(vehicle.created_at).toLocaleDateString()}
               </TableCell>
