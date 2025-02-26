@@ -7,7 +7,7 @@ import {
 } from "@/types/Vehicle";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://vehicle-api.laravel.cloud/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://vehicle-api.laravel.cloud/api/v1";
 
 // Create an axios instance that includes authentication
 const api = axios.create({
